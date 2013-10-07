@@ -1,6 +1,7 @@
 #!/bin/bash
 #set -x
 
+# this script needs root rights
 if [ "$(id -u)" != "0" ]; then
    echo "FATAL ERROR: This script must be run as root (sudo)!"
    exit 1
@@ -25,7 +26,7 @@ cat << EOF
 	Init generates profile init.
 
 	requirements:
-		ip, iw
+		ip, iw, iwconfig
 		dnsmasq (DNS,DHCP)
 		iptables (NAT,FW)
 	additional requirements (hardware AP mode required):
@@ -37,20 +38,23 @@ cat << EOF
 EOF
 }
 
+# print message green font
 function message()
 {
 	echo -e "\e[1;32m$1\e[0m" # green
 }
 
+# print message red font
 function error()
 {
 	echo -e "\e[1;31m$1\e[0m" # red
 }
 
+# check if software is installed and can be found
 function check()
 {
 message "check"
-for i in dnsmasq iptables hostapd brctl
+for i in dnsmasq iptables hostapd brctl iwconfig
 do
 	echo -n $i
 	which $i > /dev/null 2>&1
@@ -62,6 +66,7 @@ do
 done
 }
 
+# start a given profile
 function start()
 {
 (
@@ -74,13 +79,7 @@ run
 )
 }
 
-function log()
-{
-message "log"
-tail -f $1/dhcpleases &
-journalctl -f $(which hostapd)
-}
-
+# stop a given profile
 function stop()
 {
 (
@@ -93,6 +92,15 @@ nur
 )
 }
 
+# TODO print out what's going on
+function log()
+{
+message "log"
+tail -f $1/dhcpleases &
+journalctl -f $(which hostapd)
+}
+
+# list available profiles and echo description
 function list()
 {
 find . -name "conf.sh" | while read i
@@ -106,6 +114,6 @@ done
 }
 
 
-
+# pass arguments to functions or/and print help on failure
 $@
 if [ $? -ne 0 ] || [ $# -lt 1 ]; then help; fi

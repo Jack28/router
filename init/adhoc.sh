@@ -1,3 +1,5 @@
+# uses iwconfig to set up an adhoc wireless network
+
 ip l s wlan0 down
 iwconfig wlan0 mode ad-hoc
 iwconfig wlan0 channel 4
