@@ -1,5 +1,10 @@
 #!/bin/bash
-set -x
+#set -x
+
+if [ "$(id -u)" != "0" ]; then
+   echo "FATAL ERROR: This script must be run as root (sudo)!"
+   exit 1
+fi
 
 function help()
 {
@@ -14,6 +19,7 @@ cat << EOF
 			init		generates config files
 			start <profile>	starts profile
 			stop <profile>	stops profile
+			log <profile>	follow logging
 			list		lists profiles
 
 	Profiles are kept in separate folders.
@@ -68,12 +74,13 @@ function run()
 	#iptables -A PREROUTING -t nat -i \$INTERFACE -p tcp --dst \$ROUTERIP --dport \$SRCPORT -j REDIRECT --to-port \$DESTPORT
 	#iptables -A PREROUTING -t nat -i \$INTERFACE -p tcp --dport \$SRCPORT -j DNAT --to-destination 127.0.0.1:\$DESTPORT
 
-###	iptables MASQUERADE
+	# NAT
+	iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 
-	nohup hostapd hostapd.conf > hostapd.log 2>&1 &
+	hostapd -B -P hostapd.pid hostapd.conf
 #	echo \$! > hostapd.pid
 
-	dnsmasq -C dnsmasq.conf &
+	dnsmasq --pid-file=dnsmasq.pid -C dnsmasq.conf
 #	echo \$! > dnsmasq.pid
 
 	#source adhoc.sh
@@ -83,21 +90,23 @@ function run()
 function nur()
 {
 	#kill
-#	ls *.pid | while read i; do
-#		if [[ "\`ps -p \$(cat \$i)\`" =~ "\$(basename \$i .pid)" ]]; then
-#			kill \$(cat \$i)
-#			ps -p \$(cat \$i) > /dev/null
-#			if [ \$? -eq 0 ]; then
-#				kill -9 \$(cat \$i)
-#			fi
-#			rm \$i
-#		fi
-#	done
+	ls *.pid | while read i; do
+		if [[ "\`ps -p \$(cat \$i)\`" =~ "\$(basename \$i .pid)" ]]; then
+			kill \$(cat \$i)
+			ps -p \$(cat \$i) > /dev/null
+			if [ \$? -eq 0 ]; then
+				kill -9 \$(cat \$i)
+			fi
+			rm \$i
+		fi
+	done
 
-	killall hostapd
 	killall dnsmasq
 
 	sysctl -w net.ipv4.ip_forward=0
+
+	# NAT
+	iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
 
 	ip l s br0 down
 	ip l s wlp0s20u1 down
@@ -191,6 +200,13 @@ if [ $? -ne 0 ]; then error "profile not fount"; exit 1; fi
 source conf.sh
 run
 )
+}
+
+function log()
+{
+message "log"
+tail -f $1/dhcpleases &
+journalctl -f $(which hostapd)
 }
 
 function stop()
