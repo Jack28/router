@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # comment
-comment="Some useful information about the profile."
+comment="Open an WEP encrypted ADHOC wireless on wlan0. Gateway via eth0."
 
 # start
 function run()
