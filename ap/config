@@ -1,0 +1,3 @@
+#!/bin/bash
+gatewayif=enp2s0
+wlanif=wlp0s26f7u6
