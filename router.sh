@@ -107,7 +107,8 @@ find . -name "conf.sh" | while read i
 do
 	(
 	dirname $i
-	source $i
+	cd `dirname $i`
+	source conf.sh
 	echo "	"$comment
 	)
 done
