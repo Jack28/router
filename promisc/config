@@ -1,0 +1,2 @@
+#!/bin/bash
+promisc_interface=enp2s0
