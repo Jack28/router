@@ -5,7 +5,7 @@ ssid=FreeWifi
 
 
 # choose: wpa or wep or opn #
-mode=opn
+mode=wpa
 
 
 ########################

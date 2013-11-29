@@ -7,6 +7,8 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
+routerroot=`pwd`
+
 function help()
 {
 cat << EOF
@@ -71,11 +73,8 @@ function start()
 {
 (
 message "start"
-if [ $# -lt 1 ]; then error "give profile"; exit 1; fi
-cd ./$1
-if [ $? -ne 0 ]; then error "profile not fount"; exit 1; fi
-source conf.sh
-run
+load_plugin $1
+start_plugin $1
 )
 }
 
@@ -84,11 +83,8 @@ function stop()
 {
 (
 message "stop"
-if [ $# -lt 1 ]; then error "give profile"; exit 1; fi
-cd ./$1
-if [ $? -ne 0 ]; then error "profile not fount"; exit 1; fi
-source conf.sh
-nur
+load_plugin $1
+stop_plugin $1
 )
 }
 
@@ -114,6 +110,50 @@ do
 done
 }
 
+
+function pre_post_run(){
+	for plugin in "$@"
+		do
+		(
+			load_plugin $plugin
+			start_plugin $plugin
+		)
+		done
+}
+
+function pre_post_nur(){
+	for plugin in "$@"
+		do
+		(
+			load_plugin $plugin
+			stop_plugin $plugin
+		)
+		done
+}
+
+function load_plugin(){
+	if [ $# -lt 1 ]; then error "give profile"; exit 1; fi
+	reset_plugin
+	cd $routerroot/$1
+	if [ $? -ne 0 ]; then error "profile not fount"; exit 1; fi
+	source conf.sh
+}
+function reset_plugin(){
+	cd $routerroot
+	source init/conf.sh
+}
+
+function start_plugin(){
+	pre_post_run $pre_run
+	run
+	pre_post_run $post_run
+}
+
+function stop_plugin(){
+	pre_post_nur $pre_nur
+	nur
+	pre_post_nur $post_nur
+}
 
 # pass arguments to functions or/and print help on failure
 $@

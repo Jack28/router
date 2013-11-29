@@ -3,13 +3,12 @@ source config
 
 comment="Start an access point on $wlanif with gateway via $gatewayif (hostapd). Password: 5thNovember, WPA2"
 
+post_run="masquerade-internet"
+pre_nur="masquerade-internet"
+
 # start
 function run()
 {
-	sysctl -w net.ipv4.ip_forward=1
-
-	iptables -t nat -A POSTROUTING -o $gatewayif -j MASQUERADE
-
 	ip addr add 192.168.42.1/24 dev $wlanif 
 
 write_dnsmasqconf
@@ -17,6 +16,10 @@ write_dnsmasqconf
 
 	write_hostapdconf
 	hostapd -B -P /var/run/router_hostapd.pid hostapd.conf
+}
+
+function post_run(){
+	echo "internet"
 }
 
 # stop
@@ -31,11 +34,6 @@ function nur()
 		fi
 		rm $i
 	done
-
-	sysctl -w net.ipv4.ip_forward=0
-
-	# NAT
-	iptables -t nat -D POSTROUTING -o $gatewayif -j MASQUERADE
 
 	ip a d 192.168.42.1/24 dev $wlanif 
 	ip link set dev $wlanif down	
