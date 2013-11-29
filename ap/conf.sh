@@ -66,9 +66,31 @@ interface=$wlanif
 driver=nl80211
 ssid=$ssid
 channel=1
+EOF
+
+if [[ $mode = "opn" ]]
+	then
+cat >> hostapd.conf << EOF
+auth_algs=1
+EOF
+		return
+	fi
+
+if [[ $mode = "wep" ]]
+then
+cat >> hostapd.conf << EOF
+auth_algs=$auth_algs
+wep_default_key=0
+wep_key0="$wep_key"
+EOF
+
+else
+
+cat >> hostapd.conf << EOF
 wpa=$wpa
 wpa_passphrase=$wpa_passphrase
 rsn_pairwise=CCMP
-
 EOF
+
+fi
 }

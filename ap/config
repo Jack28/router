@@ -3,8 +3,27 @@ gatewayif=enp2s0
 wlanif=wlp0s26f7u6
 ssid=FreeWifi
 
-# wpa=1 #WPA
-# wpa=3 WPA&WPA2
-wpa=2 #WPA2
 
+# choose: wpa or wep or opn #
+mode=opn
+
+
+########################
+## settings for mode=wpa
+########################
+
+# wpa=1 #WPA
+wpa=2 #WPA2
+# wpa=3 WPA&WPA2
 wpa_passphrase=5thNovember
+
+########################
+## settings for mode=wep
+########################
+
+# 1: Open System Authentication
+# 2: Shared Key Authentication
+# 3: both
+auth_algs=2
+# wep_key length (ASCII): 5 / 13 / 16 
+wep_key="aaaaa"
