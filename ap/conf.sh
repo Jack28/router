@@ -12,8 +12,7 @@ function run()
 
 	ip addr add 192.168.42.1/24 dev $wlanif 
 
-
-	write_dnsmasqconf
+write_dnsmasqconf
 	dnsmasq --pid-file=/var/run/router_dnsmasq.pid -C dnsmasq.conf
 
 	write_hostapdconf
@@ -65,10 +64,10 @@ function write_hostapdconf(){
 cat > hostapd.conf << EOF
 interface=$wlanif
 driver=nl80211
-ssid=mitm
+ssid=$ssid
 channel=1
-wpa=2
-wpa_passphrase=5thNovember
+wpa=$wpa
+wpa_passphrase=$wpa_passphrase
 rsn_pairwise=CCMP
 
 EOF

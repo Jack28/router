@@ -1,3 +1,10 @@
 #!/bin/bash
 gatewayif=enp2s0
 wlanif=wlp0s26f7u6
+ssid=FreeWifi
+
+# wpa=1 #WPA
+# wpa=3 WPA&WPA2
+wpa=2 #WPA2
+
+wpa_passphrase=5thNovember
