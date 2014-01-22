@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Some usful information about the profile.
-#source config 
+source config 
 
 comment=""
 
@@ -13,11 +13,11 @@ post_nur=""
 
 function run()
 {
-	return 0
+	ip link set promisc on dev $promisc_interface	
 }
 
 function nur()
 {
-	return 0
+	ip link set promisc off dev $promisc_interface	
 }
 

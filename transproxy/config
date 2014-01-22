@@ -1,0 +1,4 @@
+#!/bin/bash
+proxyport=8080
+proxydports=443,80
+proxyif=wlp0s26f7u6
